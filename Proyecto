@@ -1,0 +1,23 @@
+import cv2
+
+print("Cuando desee salir del programa, presione la tecla 'e'")
+
+cap = cv2.VideoCapture(0)
+
+detector = cv2.QRCodeDetector()
+while True:
+  _, img = cap.read()
+  data, vertices_array, _ = detector.detectAndDecode(img)
+ 
+  if vertices_array is not None:
+    if data:
+        print("QR Code detected, data:\n", data)
+    
+
+  cv2.imshow("img", img)
+
+  if cv2.waitKey(1) == ord("e"):
+    break
+
+cap.release()
+cv2.destroyAllWindows()
