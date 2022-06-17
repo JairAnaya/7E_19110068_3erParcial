@@ -1,0 +1,40 @@
+import numpy as np
+import cv2
+from matplotlib import pyplot as plt
+
+img = cv2.imread('Dany.jpg')
+roi = cv2.selectROI('roi',img)
+recRoi = img[int(roi[1]):int(roi[1]+roi[3]), int(roi[0]):int(roi[0]+roi[2])]
+
+cv2.imwrite('roi.jpg',recRoi)
+
+img2 = cv2.imread('roi.jpg')
+
+mask = np.zeros(img2.shape[:2],np.uint8)
+
+bgdModel = np.zeros((1,65),np.float64)
+fgdModel = np.zeros((1,65),np.float64)
+
+rect = (161,79,150,150)
+
+cv2.grabCut(img2,mask,rect,bgdModel,fgdModel,5,cv2.GC_INIT_WITH_RECT)
+mask2 = np.where((mask==2)|(mask==0),0,1).astype('uint8')
+img2 = img2*mask2[:,:,np.newaxis]
+
+gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+gray = np.float32(gray)
+
+corners = cv2.goodFeaturesToTrack(gray, 100, 0.01, 10)
+corners = np.int0(corners)
+
+for corner in corners:
+    x,y = corner.ravel()
+    cv2.circle(img,(x,y),3,255,-1)
+    
+cv2.imshow('Corner',img)
+
+plt.imshow(img2)
+plt.colorbar()
+plt.show()
+cv2.waitKey(0)
+cv2.destroyAllWindows()
